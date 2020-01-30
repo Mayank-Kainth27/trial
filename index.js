@@ -43,12 +43,18 @@ app.listen(8080, () => {
 })*/
 
 const express = require('express');
-const app = express();
+const mongoose = require('mongoose');
+require('./models/user');
+require('./services/passport');
+const keys = require('./config/keys');
 
-app.get('/', (req, res) => {
-    res.send({
-        hi: "ther" });
-})
+
+mongoose.connect(keys.mongoURI);
+
+
+const app = express();
+require('./routes/authRoutes')(app);
+
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT);
+app.listen(PORT); 

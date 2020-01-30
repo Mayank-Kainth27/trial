@@ -1,26 +1,38 @@
 const express = require('express');
 const router = express.Router();
 var bodyParser = require('body-parser');
-const UsersModel = require('./../models/users');
+const User = require('./../models/users');
+var passport = require("passport");
+var LocalStrategy = require('passport-local');
+var passportLocalMongoose = require('passport-local-mongoose');
 
 
 var app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
+app.use(require('express-session')({
+    secret: "theBlog",
+    resave: false,
+    saveUninitialized: false
+}));
 
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
-
-/*router.route('/').get((req, res) => {
+router.route('/').get((req, res) => {
     User.find()
         .then(users => res.json(users))
         .catch(err => res.sendStatus(400).json('Error : ' + err));
-});*/
+});
 
 
-router.get('', (req, res) => {
+/*router.get('', (req, res) => {
     UsersModel.findUsers(req, (error, response) => {
         if (error) console.log("Error is: ", error);
         if (response) {
@@ -28,9 +40,9 @@ router.get('', (req, res) => {
             res.send(response);
         }
     });
-});
+});*/
 
-router.post('/add', (req, res) => {
+/*router.post('/add', (req, res) => {
     UsersModel.addUser(req, (error, response) => {
         if (error) {
             console.log("Error is: ", error);
@@ -42,11 +54,11 @@ router.post('/add', (req, res) => {
             res.send('User added successfully');
         }
     });
-});
+});*/
 
-/*router.post('/add', (req, res) => {
+router.post('/add', (req, res) => {
     
-    User.register(new User({ firstName: req.body.firstName, LastName: req.body.LastName, email: req.body.email,username: req.body.username }), req.body.password, function (err, user) {
+    User.register(new User({ username: req.body.username ,email: req.body.email}), req.body.password, function (err, user) {
         if (err) {
             console.log(err);
             return res.send('/user/add');
